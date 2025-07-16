@@ -1,0 +1,102 @@
+.login-bg {
+  min-height: 100vh;
+  width: 100vw;
+  background: linear-gradient(120deg, #efefef 0%, #f8f8f8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  background: #fff;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 14px;
+  box-shadow: 0 6px 32px rgba(60,60,160,0.18);
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.3rem;
+}
+
+.login-logo img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-bottom: .5rem;
+}
+
+h2 {
+  font-size: 1.45rem;
+  text-align: center;
+  color: #283593;
+  margin-bottom: 0.5rem;
+}
+
+.input-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+label {
+  color: #283593;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 6px;
+  border: 1.5px solid #bdbdbd;
+  background: #f8f9fa;
+  font-size: 1rem;
+  transition: border 0.2s;
+}
+
+input:focus {
+  outline: none;
+  border-color: #1976d2;
+}
+
+button[type="submit"] {
+  background: #1976d2;
+  color: #fff;
+  padding: 0.7rem 0;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.08rem;
+  font-weight: 500;
+  width: 100%;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+  box-shadow: 0 1px 4px rgba(40, 53, 147, 0.07);
+}
+
+button[disabled] {
+  background: #90caf9;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background: #ffcdd2;
+  color: #c62828;
+  border-radius: 5px;
+  padding: 0.5rem 1rem;
+  font-size: 0.97rem;
+  text-align: center;
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 1.2rem 0.5rem;
+    max-width: 97vw;
+  }
+}

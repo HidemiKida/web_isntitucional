@@ -1,0 +1,60 @@
+:root {
+  --primary-color: #2E7D32;
+  --primary-light: #4CAF50;
+  --primary-dark: #1B5E20;
+  --secondary-color: #81C784;
+  --background-light: #F1F8E9;
+  --text-primary: #1B5E20;
+  --text-secondary: #33691E;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-light);
+  color: var(--text-primary);
+}
+
+/* Personalización del Slider */
+.swiper-button-next,
+.swiper-button-prev {
+  color: var(--primary-color) !important;
+  background: rgba(255, 255, 255, 0.9);
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 50%;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 20px !important;
+}
+
+.swiper-pagination-bullet {
+  background: var(--primary-light) !important;
+  opacity: 0.8;
+}
+
+.swiper-pagination-bullet-active {
+  background: var(--primary-color) !important;
+}
+
+/* Efectos de hover para cards */
+.hover-grow {
+  transition: transform 0.3s ease;
+}
+
+.hover-grow:hover {
+  transform: translateY(-5px);
+}
+
+/* Gradientes para secciones */
+.gradient-bg {
+  background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E9 100%);
+}
+
+/* Sombras personalizadas */
+.card-shadow {
+  box-shadow: 0 4px 20px rgba(46, 125, 50, 0.1);
+}
