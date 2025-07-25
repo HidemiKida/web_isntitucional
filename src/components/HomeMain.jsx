@@ -9,7 +9,7 @@ import { FaGraduationCap, FaUsers, FaBook, FaChalkboardTeacher } from 'react-ico
 
 export default function HomeMain() {
   const sliderImages = [
-    '/slide1.jpg', // Imágenes de tu institución
+    '/slide1.jpg',
     '/slide2.jpg',
     '/slide3.jpg'
   ];
@@ -38,21 +38,23 @@ export default function HomeMain() {
   ];
 
   return (
-    <Box sx={{ position: 'relative' }}>
-      {/* Hero Slider */}
+    <Box sx={{ 
+      position: 'relative',
+      mt: { xs: '64px', md: '72px' }
+    }}>
       <Swiper
         modules={[Autoplay, Navigation, Pagination]}
         navigation
         pagination={{ clickable: true }}
         autoplay={{ delay: 5000 }}
         loop
-        style={{ height: '80vh' }}
+        style={{ height: 'calc(80vh - 52px)' }}
       >
         {sliderImages.map((img, index) => (
           <SwiperSlide key={index}>
             <Box
               sx={{
-                height: '80vh',
+                height: 'calc(100vh - 72px)',
                 backgroundImage: `url(${img})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -75,7 +77,8 @@ export default function HomeMain() {
                     height: '100%',
                     display: 'flex',
                     alignItems: 'center',
-                    color: 'white'
+                    color: 'white',
+                    zIndex: 2
                   }}
                 >
                   <motion.div
@@ -83,10 +86,36 @@ export default function HomeMain() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                   >
-                    <Typography variant="h2" sx={{ mb: 2, fontWeight: 700 }}>
-                      Institución Educativa
+                                      <Typography 
+                      variant="h2" 
+                      sx={{ 
+                        mb: 2, 
+                        fontWeight: 700,
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                        fontSize: { xs: '2.5rem', md: '3.75rem' }
+                      }}
+                    >
+                      Unidad Educativa Fiscal
                     </Typography>
-                    <Typography variant="h5" sx={{ mb: 4 }}>
+                    <Typography 
+                      variant="h3" 
+                      sx={{ 
+                        mb: 2,
+                        fontWeight: 600,
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
+                        fontSize: { xs: '2rem', md: '3rem' }
+                      }}
+                    >
+                      "Olga Patricia Acebo Alvarez"
+                    </Typography>
+                    <Typography 
+                      variant="h5" 
+                      sx={{ 
+                        mb: 4,
+                        textShadow: '1px 1px 3px rgba(0,0,0,0.5)',
+                        fontSize: { xs: '1.25rem', md: '1.5rem' }
+                      }}
+                    >
                       Formando líderes para el futuro
                     </Typography>
                     <Button
@@ -96,7 +125,9 @@ export default function HomeMain() {
                         backgroundColor: '#e53935',
                         '&:hover': {
                           backgroundColor: '#c62828'
-                        }
+                        },
+                        px: 4,
+                        py: 1.5
                       }}
                     >
                       Conoce más
@@ -130,21 +161,51 @@ export default function HomeMain() {
                   sx={{
                     height: '100%',
                     textAlign: 'center',
-                    transition: '0.3s',
+                    transition: 'all 0.3s ease',
+                    backgroundColor: 'white',
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    overflow: 'hidden',
                     '&:hover': {
                       transform: 'translateY(-10px)',
                       boxShadow: 6
                     }
                   }}
                 >
-                  <CardContent>
-                    <Box sx={{ color: 'primary.main', mb: 2 }}>
+                  <CardContent sx={{ p: 3 }}>
+                    <Box 
+                      sx={{ 
+                        color: 'primary.main',
+                        mb: 2,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '60px'
+                      }}
+                    >
                       {card.icon}
                     </Box>
-                    <Typography variant="h6" gutterBottom>
+                    <Typography 
+                      variant="h6" 
+                      component="h3"
+                      sx={{
+                        color: 'primary.dark',
+                        fontWeight: 600,
+                        mb: 2,
+                        fontSize: '1.25rem',
+                        lineHeight: 1.3
+                      }}
+                    >
                       {card.title}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography 
+                      variant="body2"
+                      sx={{
+                        color: 'text.secondary',
+                        fontSize: '0.95rem',
+                        lineHeight: 1.6
+                      }}
+                    >
                       {card.description}
                     </Typography>
                   </CardContent>
@@ -162,39 +223,93 @@ export default function HomeMain() {
             variant="h3"
             align="center"
             gutterBottom
-            sx={{ mb: 6, fontWeight: 700 }}
+            sx={{
+              mb: 6,
+              fontWeight: 700,
+              color: 'primary.dark',
+              position: 'relative',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                bottom: -16,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: 100,
+                height: 4,
+                backgroundColor: 'primary.main',
+                borderRadius: 2
+              }
+            }}
           >
             Últimas Noticias
           </Typography>
           <Grid container spacing={4}>
-            {/* Ejemplo de noticia */}
             <Grid item xs={12} md={4}>
-              <Card>
-                <Box
-                  sx={{
-                    height: 200,
-                    backgroundImage: 'url(/news1.jpg)',
-                    backgroundSize: 'cover'
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card 
+                  sx={{ 
+                    height: '100%',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-8px)',
+                      boxShadow: 4
+                    }
                   }}
-                />
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    Título de la Noticia
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Descripción breve de la noticia...
-                  </Typography>
-                  <Button
-                    sx={{ mt: 2 }}
-                    variant="outlined"
-                    color="primary"
-                  >
-                    Leer más
-                  </Button>
-                </CardContent>
-              </Card>
+                >
+                  <Box
+                    sx={{
+                      height: 200,
+                      backgroundImage: 'url(/news1.jpg)',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center'
+                    }}
+                  />
+                  <CardContent>
+                    <Typography 
+                      variant="h6" 
+                      gutterBottom
+                      sx={{
+                        fontWeight: 600,
+                        color: 'primary.dark',
+                        fontSize: '1.1rem',
+                        mb: 2
+                      }}
+                    >
+                      Título de la Noticia
+                    </Typography>
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                      sx={{ 
+                        mb: 2,
+                        lineHeight: 1.6
+                      }}
+                    >
+                      Descripción breve de la noticia que proporciona una vista previa del contenido completo...
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      sx={{
+                        mt: 2,
+                        borderRadius: 2,
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        '&:hover': {
+                          backgroundColor: 'rgba(46, 125, 50, 0.08)'
+                        }
+                      }}
+                    >
+                      Leer más
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </Grid>
-            {/* Repite para más noticias */}
           </Grid>
         </Container>
       </Box>

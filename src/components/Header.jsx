@@ -33,7 +33,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 export default function Header() {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [adminMenuAnchor, setAdminMenuAnchor] = useState(null);
@@ -65,7 +65,7 @@ export default function Header() {
     setIsLoading(true);
     try {
       await logout();
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
     } finally {
@@ -84,11 +84,11 @@ export default function Header() {
         background: isScrolled
           ? 'rgba(187, 217, 176, 0.95)'
           : 'linear-gradient(180deg, rgba(187, 217, 176, 0.95) 0%, rgba(187, 217, 176, 0.95) 100%)',
-        boxShadow: isScrolled
-          ? '0 2px 28px rgba(0,0,0,0.1)'
-          : 'none',
+        boxShadow: isScrolled ? '0 2px 28px rgba(0,0,0,0.1)' : 'none',
         backdropFilter: 'blur(8px)',
         transition: 'all 0.3s ease',
+        height: { xs: '64px', md: '72px' },
+        zIndex: (theme) => theme.zIndex.drawer + 1
       }}
     >
       <Container maxWidth="xl">
@@ -98,9 +98,9 @@ export default function Header() {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            minHeight: { xs: '64px', md: '72px' }
           }}
         >
-          {/* Logo y Título */}
           <Box
             component={Link}
             to="/"
@@ -150,7 +150,6 @@ export default function Header() {
             )}
           </Box>
 
-          {/* Menú Desktop */}
           {!isMobile && (
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               {menuItems.map((item) => (
@@ -177,74 +176,77 @@ export default function Header() {
                 </Button>
               ))}
 
-              <Button
-                onClick={(e) => setAdminMenuAnchor(e.currentTarget)}
-                startIcon={<FaCog />}
-                endIcon={<FaChevronDown />}
-                sx={{
-                  ml: 1,
-                  color: 'primary.main',
-                  px: 2,
-                  py: 1,
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  fontSize: '1rem',
-                  fontWeight: 500,
-                }}
-              >
-                Admin
-              </Button>
-
-              <Menu
-                anchorEl={adminMenuAnchor}
-                open={Boolean(adminMenuAnchor)}
-                onClose={() => setAdminMenuAnchor(null)}
-                PaperProps={{
-                  elevation: 3,
-                  sx: {
-                    mt: 1.5,
-                    minWidth: 200,
-                    borderRadius: 2,
-                  },
-                }}
-              >
-                {adminItems.map((item) => (
-                  <MenuItem
-                    key={item.text}
-                    component={Link}
-                    to={item.path}
-                    onClick={() => setAdminMenuAnchor(null)}
+              {user && (
+                <>
+                  <Button
+                    onClick={(e) => setAdminMenuAnchor(e.currentTarget)}
+                    startIcon={<FaCog />}
+                    endIcon={<FaChevronDown />}
                     sx={{
-                      py: 1.5,
+                      ml: 1,
                       color: 'primary.main',
-                      '&:hover': {
-                        backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                      px: 2,
+                      py: 1,
+                      borderRadius: 2,
+                      textTransform: 'none',
+                      fontSize: '1rem',
+                      fontWeight: 500,
+                    }}
+                  >
+                    Admin
+                  </Button>
+
+                  <Menu
+                    anchorEl={adminMenuAnchor}
+                    open={Boolean(adminMenuAnchor)}
+                    onClose={() => setAdminMenuAnchor(null)}
+                    PaperProps={{
+                      elevation: 3,
+                      sx: {
+                        mt: 1.5,
+                        minWidth: 200,
+                        borderRadius: 2,
                       },
                     }}
                   >
-                    {item.text}
-                  </MenuItem>
-                ))}
-                <MenuItem
-                  onClick={() => {
-                    setAdminMenuAnchor(null);
-                    handleLogout();
-                  }}
-                  disabled={isLoading}
-                  sx={{
-                    color: 'error.main',
-                    borderTop: '1px solid rgba(0,0,0,0.1)',
-                    mt: 1,
-                  }}
-                >
-                  <FaSignOutAlt style={{ marginRight: 8 }} />
-                  {isLoading ? 'Cerrando sesión...' : 'Cerrar Sesión'}
-                </MenuItem>
-              </Menu>
+                    {adminItems.map((item) => (
+                      <MenuItem
+                        key={item.text}
+                        component={Link}
+                        to={item.path}
+                        onClick={() => setAdminMenuAnchor(null)}
+                        sx={{
+                          py: 1.5,
+                          color: 'primary.main',
+                          '&:hover': {
+                            backgroundColor: 'rgba(46, 125, 50, 0.1)',
+                          },
+                        }}
+                      >
+                        {item.text}
+                      </MenuItem>
+                    ))}
+                    <MenuItem
+                      onClick={() => {
+                        setAdminMenuAnchor(null);
+                        handleLogout();
+                      }}
+                      disabled={isLoading}
+                      sx={{
+                        color: 'error.main',
+                        borderTop: '1px solid rgba(0,0,0,0.1)',
+                        mt: 1,
+                      }}
+                    >
+                      <FaSignOutAlt style={{ marginRight: 8 }} />
+                      {isLoading ? 'Cerrando sesión...' : 'Cerrar Sesión'}
+                    </MenuItem>
+                  </Menu>
+                </>
+              )}
             </Box>
           )}
 
-          {/* Menú Mobile */}
           {isMobile && (
             <IconButton
               onClick={() => setMobileOpen(true)}
@@ -256,7 +258,6 @@ export default function Header() {
         </Toolbar>
       </Container>
 
-      {/* Drawer Mobile */}
       <Drawer
         anchor="right"
         open={mobileOpen}
@@ -288,7 +289,7 @@ export default function Header() {
               }}
             />
             <Typography variant="h6" color="primary.main" fontWeight={700}>
-              Panel Admin
+              {user ? 'Panel Admin' : 'Menú'}
             </Typography>
           </Box>
 
@@ -318,56 +319,60 @@ export default function Header() {
               </ListItem>
             ))}
 
-            {adminItems.map((item) => (
-              <ListItem
-                key={item.text}
-                component={Link}
-                to={item.path}
-                onClick={() => setMobileOpen(false)}
-                sx={{
-                  borderRadius: 2,
-                  mb: 1,
-                  backgroundColor: location.pathname === item.path ? 'rgba(46, 125, 50, 0.1)' : 'transparent',
-                }}
-              >
-                <ListItemIcon sx={{ color: 'primary.main' }}>
-                  <FaCog />
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  primaryTypographyProps={{
-                    fontWeight: 500,
-                    color: 'primary.main',
-                  }}
-                />
-              </ListItem>
-            ))}
+            {user && (
+              <>
+                {adminItems.map((item) => (
+                  <ListItem
+                    key={item.text}
+                    component={Link}
+                    to={item.path}
+                    onClick={() => setMobileOpen(false)}
+                    sx={{
+                      borderRadius: 2,
+                      mb: 1,
+                      backgroundColor: location.pathname === item.path ? 'rgba(46, 125, 50, 0.1)' : 'transparent',
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: 'primary.main' }}>
+                      <FaCog />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        fontWeight: 500,
+                        color: 'primary.main',
+                      }}
+                    />
+                  </ListItem>
+                ))}
 
-            <ListItem
-              onClick={() => {
-                setMobileOpen(false);
-                handleLogout();
-              }}
-              disabled={isLoading}
-              sx={{
-                borderRadius: 2,
-                mt: 2,
-                color: 'error.main',
-                '&:hover': {
-                  backgroundColor: 'rgba(211, 47, 47, 0.1)',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'error.main' }}>
-                <FaSignOutAlt />
-              </ListItemIcon>
-              <ListItemText
-                primary={isLoading ? 'Cerrando sesión...' : 'Cerrar Sesión'}
-                primaryTypographyProps={{
-                  fontWeight: 500,
-                }}
-              />
-            </ListItem>
+                <ListItem
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handleLogout();
+                  }}
+                  disabled={isLoading}
+                  sx={{
+                    borderRadius: 2,
+                    mt: 2,
+                    color: 'error.main',
+                    '&:hover': {
+                      backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'error.main' }}>
+                    <FaSignOutAlt />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={isLoading ? 'Cerrando sesión...' : 'Cerrar Sesión'}
+                    primaryTypographyProps={{
+                      fontWeight: 500,
+                    }}
+                  />
+                </ListItem>
+              </>
+            )}
           </List>
         </Box>
       </Drawer>
