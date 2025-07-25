@@ -6,6 +6,16 @@
   --background-light: #F1F8E9;
   --text-primary: #1B5E20;
   --text-secondary: #33691E;
+  --border-radius: 12px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -14,47 +24,103 @@ body {
   padding: 0;
   background-color: var(--background-light);
   color: var(--text-primary);
+  line-height: 1.6;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  background: #e3eafc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
 }
 
 /* Personalización del Slider */
 .swiper-button-next,
 .swiper-button-prev {
   color: var(--primary-color) !important;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.9) !important;
   width: 50px !important;
   height: 50px !important;
-  border-radius: 50%;
+  border-radius: 50% !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  transition: all 0.3s ease !important;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 1) !important;
+  transform: scale(1.1) !important;
 }
 
 .swiper-button-next:after,
 .swiper-button-prev:after {
-  font-size: 20px !important;
+  font-size: 18px !important;
 }
 
 .swiper-pagination-bullet {
-  background: var(--primary-light) !important;
-  opacity: 0.8;
+  background: rgba(255, 255, 255, 0.7) !important;
+  opacity: 1 !important;
+  width: 12px !important;
+  height: 12px !important;
+  transition: all 0.3s ease !important;
 }
 
 .swiper-pagination-bullet-active {
   background: var(--primary-color) !important;
+  transform: scale(1.2) !important;
 }
 
-/* Efectos de hover para cards */
+/* Efectos globales */
 .hover-grow {
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .hover-grow:hover {
-  transform: translateY(-5px);
+  transform: translateY(-4px);
 }
 
-/* Gradientes para secciones */
+.card-shadow {
+  box-shadow: 0 4px 20px rgba(46, 125, 50, 0.1);
+}
+
 .gradient-bg {
   background: linear-gradient(135deg, #F1F8E9 0%, #E8F5E9 100%);
 }
 
-/* Sombras personalizadas */
-.card-shadow {
-  box-shadow: 0 4px 20px rgba(46, 125, 50, 0.1);
+/* Animaciones suaves */
+.fade-in {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Espaciado consistente */
+.section-spacing {
+  padding: var(--spacing-xl) 0;
+}
+
+.content-spacing {
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Responsividad mejorada */
+@media (max-width: 600px) {
+  .section-spacing {
+    padding: var(--spacing-lg) 0;
+  }
+  
+  .content-spacing {
+    margin-bottom: var(--spacing-md);
+  }
 }

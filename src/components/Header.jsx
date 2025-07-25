@@ -27,6 +27,7 @@ import {
   FaChevronDown,
   FaSignOutAlt,
   FaCog,
+  FaEye,
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
@@ -52,8 +53,10 @@ export default function Header() {
 
   const menuItems = [
     { text: 'Inicio', icon: <FaHome size={20} />, path: '/' },
+    { text: 'Misión y Visión', icon: <FaEye  size={20} />, path: '/mision-vision' },
     { text: 'Noticias', icon: <FaNewspaper size={20} />, path: '/noticias' },
     { text: 'Galería', icon: <FaImages size={20} />, path: '/galeria' },
+    
   ];
 
   const adminItems = [

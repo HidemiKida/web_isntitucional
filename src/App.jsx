@@ -8,6 +8,7 @@ import AdminNoticias from './components/AdminNoticias';
 import AdminGaleria from './components/AdminGaleria';
 import Noticias from './components/Noticias';
 import Galeria from './components/Galeria';
+import MisionVision from './components/MisionVision'; // Nueva importación
 import PrivateRoute from './components/PrivateRoute';
 
 import { ThemeProvider } from '@mui/material/styles';
@@ -27,6 +28,7 @@ function App() {
                 <Route path="/" element={<HomeMain />} />
                 <Route path="/noticias" element={<Noticias />} />
                 <Route path="/galeria" element={<Galeria />} />
+                <Route path="/mision-vision" element={<MisionVision />} /> {/* Nueva ruta */}
                 <Route path="/admin-login" element={<AdminLogin />} />
                 <Route
                   path="/admin-dashboard"
