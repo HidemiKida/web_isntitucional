@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../config/firebase';
 import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import {
-  Box, Container, Typography, Card, CardContent, TextField, Button, Grid, IconButton, Dialog, DialogTitle, DialogActions, DialogContent, Alert
+  Box, Container, Typography, Card, CardContent, TextField, Button, 
+  Grid, IconButton, Dialog, DialogTitle, DialogActions, DialogContent, 
+  Alert, Input, CircularProgress
 } from '@mui/material';
-import { Delete, Add } from '@mui/icons-material';
+import { Delete, Add, Upload } from '@mui/icons-material';
+import { convertToBase64, validateImage } from '../utils/imageUtils';
 
 export default function AdminNoticias() {
   const [noticias, setNoticias] = useState([]);
@@ -14,6 +17,8 @@ export default function AdminNoticias() {
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     const fetchNoticias = async () => {
@@ -27,16 +32,43 @@ export default function AdminNoticias() {
     fetchNoticias();
   }, []);
 
+  const handleImageSelect = async (event) => {
+    try {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      validateImage(file);
+      setUploadingImage(true);
+      setError('');
+
+      const base64 = await convertToBase64(file);
+      setPreviewImage(base64);
+      setImagen(base64);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const addNoticia = async () => {
     if (!titulo || !descripcion) {
-      setError("Completa todos los campos.");
+      setError("Completa el título y la descripción.");
       return;
     }
     try {
-      const nueva = { titulo, descripcion, imagen, fecha: new Date().toISOString() };
-      await addDoc(collection(db, "noticias"), nueva);
-      setNoticias([...noticias, nueva]);
-      setTitulo(''); setDescripcion(''); setImagen('');
+      const nueva = { 
+        titulo, 
+        descripcion, 
+        imagen: imagen || '', 
+        fecha: new Date().toISOString() 
+      };
+      const docRef = await addDoc(collection(db, "noticias"), nueva);
+      setNoticias([...noticias, { ...nueva, id: docRef.id }]);
+      setTitulo('');
+      setDescripcion('');
+      setImagen('');
+      setPreviewImage(null);
       setError('');
     } catch (e) {
       setError("Error al agregar noticia.");
@@ -55,7 +87,7 @@ export default function AdminNoticias() {
       setDialogOpen(false);
       setError('');
     } catch {
-      setError("Error al eliminar noticia.");
+      setError("Error al eliminar la noticia.");
     }
   };
 
@@ -66,12 +98,28 @@ export default function AdminNoticias() {
           Administrar Noticias
         </Typography>
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={2} alignItems="start">
           <Grid item xs={12} md={4}>
             <Card sx={{ p: 2 }}>
               <Typography variant="h6" color="primary" gutterBottom>
                 Nueva Noticia
               </Typography>
+
+              {previewImage && (
+                <Box sx={{ mt: 2, mb: 2 }}>
+                  <img 
+                    src={previewImage} 
+                    alt="Vista previa" 
+                    style={{ 
+                      width: '100%', 
+                      height: '200px', 
+                      objectFit: 'cover',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                </Box>
+              )}
+
               <TextField
                 label="Título"
                 fullWidth
@@ -88,21 +136,41 @@ export default function AdminNoticias() {
                 multiline
                 rows={3}
               />
-              <TextField
-                label="URL de Imagen"
-                fullWidth
-                value={imagen}
-                onChange={e => setImagen(e.target.value)}
-                margin="dense"
+
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                style={{ display: 'none' }}
+                id="noticia-image-input"
               />
+              <label htmlFor="noticia-image-input">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  startIcon={<Upload />}
+                  sx={{ mt: 2, mb: 2 }}
+                  fullWidth
+                  disabled={uploadingImage}
+                >
+                  {uploadingImage ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    'Seleccionar Imagen'
+                  )}
+                </Button>
+              </label>
+
               <Button
                 variant="contained"
                 color="primary"
                 startIcon={<Add />}
                 sx={{ mt: 2 }}
                 onClick={addNoticia}
+                disabled={!titulo || !descripcion || uploadingImage}
+                fullWidth
               >
-                Agregar
+                Agregar Noticia
               </Button>
             </Card>
           </Grid>
@@ -114,18 +182,39 @@ export default function AdminNoticias() {
                     <IconButton
                       onClick={() => confirmDelete(noticia)}
                       sx={{
-                        position: 'absolute', top: 8, right: 8,
-                        bgcolor: '#F4EDE7', color: '#C62828', zIndex: 1
+                        position: 'absolute', 
+                        top: 8, 
+                        right: 8,
+                        bgcolor: 'rgba(255, 255, 255, 0.9)',
+                        color: '#C62828', 
+                        zIndex: 1,
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 1)',
+                        }
                       }}
                     >
                       <Delete />
                     </IconButton>
-                    {noticia.imagen &&
-                      <img src={noticia.imagen} alt="" style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
-                    }
+                    {noticia.imagen && (
+                      <img 
+                        src={noticia.imagen} 
+                        alt={noticia.titulo}
+                        style={{ 
+                          width: '100%', 
+                          height: 200, 
+                          objectFit: 'cover', 
+                          borderRadius: 8,
+                          marginBottom: 8 
+                        }} 
+                      />
+                    )}
                     <CardContent sx={{ p: 1 }}>
-                      <Typography variant="subtitle1" fontWeight={700}>{noticia.titulo}</Typography>
-                      <Typography variant="body2" color="text.secondary">{noticia.descripcion}</Typography>
+                      <Typography variant="subtitle1" fontWeight={700}>
+                        {noticia.titulo}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {noticia.descripcion}
+                      </Typography>
                     </CardContent>
                   </Card>
                 </Grid>
@@ -133,7 +222,13 @@ export default function AdminNoticias() {
             </Grid>
           </Grid>
         </Grid>
-        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <Dialog 
+          open={dialogOpen} 
+          onClose={() => setDialogOpen(false)}
+          PaperProps={{
+            sx: { borderRadius: 2 }
+          }}
+        >
           <DialogTitle>¿Eliminar noticia?</DialogTitle>
           <DialogContent>
             ¿Estás seguro de que quieres eliminar la noticia "<b>{selected?.titulo}</b>"?

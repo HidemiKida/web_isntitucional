@@ -1,25 +1,28 @@
-import imageCompression from 'browser-image-compression';
+export const convertToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(file);
 
-export const processImage = async (imageFile) => {
-  try {
-    const options = {
-      maxSizeMB: 0.5,
-      maxWidthOrHeight: 800,
-      useWebWorker: true,
+    fileReader.onload = () => {
+      resolve(fileReader.result);
     };
 
-    const compressedFile = await imageCompression(imageFile, options);
+    fileReader.onerror = (error) => {
+      reject(error);
+    };
+  });
+};
 
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(compressedFile);
-      reader.onloadend = () => {
-        resolve(reader.result);
-      };
-      reader.onerror = reject;
-    });
-  } catch (error) {
-    console.error('Error processing image:', error);
-    throw error;
+export const validateImage = (file) => {
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  if (!validTypes.includes(file.type)) {
+    throw new Error('Formato de imagen no válido. Use JPG, PNG o GIF.');
   }
+
+  const maxSize = 2 * 1024 * 1024; // 2MB
+  if (file.size > maxSize) {
+    throw new Error('La imagen no debe superar 2MB');
+  }
+
+  return true;
 };

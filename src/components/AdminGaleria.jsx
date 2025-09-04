@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../config/firebase';
 import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import {
-  Box, Container, Typography, Card, CardContent, TextField, Button, Grid, IconButton, Dialog, DialogTitle, DialogActions, DialogContent, Alert, Tabs, Tab
+  Box, Container, Typography, Card, CardContent, TextField, Button, Grid, 
+  IconButton, Dialog, DialogTitle, DialogActions, DialogContent, Alert, 
+  Tabs, Tab, Input, CircularProgress
 } from '@mui/material';
-import { Delete, AddPhotoAlternate } from '@mui/icons-material';
+import { Delete, AddPhotoAlternate, Upload } from '@mui/icons-material';
+import { convertToBase64, validateImage } from '../utils/imageUtils';
 
 export default function AdminGaleria() {
   const [albums, setAlbums] = useState([]);
@@ -15,27 +18,54 @@ export default function AdminGaleria() {
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
-  // Cargar álbumes
   useEffect(() => {
     const fetchAlbums = async () => {
-      const q = await getDocs(collection(db, "galeria"));
-      setAlbums(q.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      try {
+        const q = await getDocs(collection(db, "galeria"));
+        setAlbums(q.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      } catch (error) {
+        setError("Error al cargar los álbumes");
+      }
     };
     fetchAlbums();
   }, []);
 
-  // Cargar fotos del álbum seleccionado
   useEffect(() => {
     if (!activeAlbum) return setPhotos([]);
     const fetchPhotos = async () => {
-      const albumRef = doc(db, "galeria", activeAlbum);
-      const fotosCol = collection(albumRef, "fotos");
-      const q = await getDocs(fotosCol);
-      setPhotos(q.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      try {
+        const albumRef = doc(db, "galeria", activeAlbum);
+        const fotosCol = collection(albumRef, "fotos");
+        const q = await getDocs(fotosCol);
+        setPhotos(q.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      } catch (error) {
+        setError("Error al cargar las fotos");
+      }
     };
     fetchPhotos();
   }, [activeAlbum]);
+
+  const handleImageSelect = async (event) => {
+    try {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      validateImage(file);
+      setUploadingImage(true);
+      setError('');
+
+      const base64 = await convertToBase64(file);
+      setPreviewImage(base64);
+      setUrlFoto(base64);
+    } catch (error) {
+      setError(error.message);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const addAlbum = async () => {
     if (!nombreAlbum) {
@@ -48,19 +78,21 @@ export default function AdminGaleria() {
       setNombreAlbum('');
       setError('');
     } catch {
-      setError("No se pudo crear álbum.");
+      setError("No se pudo crear el álbum.");
     }
   };
 
   const addPhoto = async () => {
     if (!urlFoto || !activeAlbum) {
-      setError("Elige un álbum y coloca la URL de la foto.");
+      setError("Selecciona un álbum y una imagen.");
       return;
     }
     try {
-      await addDoc(collection(doc(db, "galeria", activeAlbum), "fotos"), { imagen: urlFoto });
-      setPhotos([...photos, { imagen: urlFoto }]);
+      const newPhoto = { imagen: urlFoto };
+      const docRef = await addDoc(collection(doc(db, "galeria", activeAlbum), "fotos"), newPhoto);
+      setPhotos([...photos, { ...newPhoto, id: docRef.id }]);
       setUrlFoto('');
+      setPreviewImage(null);
       setError('');
     } catch {
       setError("No se pudo agregar la foto.");
@@ -108,6 +140,7 @@ export default function AdminGaleria() {
                 color="primary"
                 sx={{ mt: 2 }}
                 onClick={addAlbum}
+                fullWidth
               >
                 Crear Álbum
               </Button>
@@ -116,21 +149,56 @@ export default function AdminGaleria() {
               <Typography variant="h6" color="primary" gutterBottom>
                 Agregar Foto a Álbum
               </Typography>
-              <TextField
-                label="URL de la imagen"
-                fullWidth
-                value={urlFoto}
-                onChange={e => setUrlFoto(e.target.value)}
-                margin="dense"
+
+              {previewImage && (
+                <Box sx={{ mt: 2, mb: 2 }}>
+                  <img 
+                    src={previewImage} 
+                    alt="Vista previa" 
+                    style={{ 
+                      width: '100%', 
+                      height: '200px', 
+                      objectFit: 'cover',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                </Box>
+              )}
+
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                style={{ display: 'none' }}
+                id="galeria-image-input"
               />
+              <label htmlFor="galeria-image-input">
+                <Button
+                  variant="outlined"
+                  component="span"
+                  startIcon={<Upload />}
+                  sx={{ mt: 2, mb: 2 }}
+                  fullWidth
+                  disabled={uploadingImage}
+                >
+                  {uploadingImage ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    'Seleccionar Imagen'
+                  )}
+                </Button>
+              </label>
+
               <Button
                 variant="contained"
                 color="secondary"
                 sx={{ mt: 2 }}
                 startIcon={<AddPhotoAlternate />}
                 onClick={addPhoto}
+                disabled={!urlFoto || !activeAlbum || uploadingImage}
+                fullWidth
               >
-                Agregar Foto
+                Agregar Foto al Álbum
               </Button>
             </Card>
           </Grid>
@@ -163,8 +231,15 @@ export default function AdminGaleria() {
                     <IconButton
                       onClick={() => confirmDelete(photo)}
                       sx={{
-                        position: 'absolute', top: 8, right: 8,
-                        bgcolor: '#F4EDE7', color: '#C62828', zIndex: 1
+                        position: 'absolute', 
+                        top: 8, 
+                        right: 8,
+                        bgcolor: 'rgba(255, 255, 255, 0.9)',
+                        color: '#C62828', 
+                        zIndex: 1,
+                        '&:hover': {
+                          bgcolor: 'rgba(255, 255, 255, 1)',
+                        }
                       }}
                     >
                       <Delete />
@@ -172,7 +247,12 @@ export default function AdminGaleria() {
                     <img
                       src={photo.imagen}
                       alt="Foto"
-                      style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }}
+                      style={{ 
+                        width: '100%', 
+                        height: 200, 
+                        objectFit: 'cover', 
+                        borderRadius: 8 
+                      }}
                     />
                   </Card>
                 </Grid>
@@ -180,7 +260,13 @@ export default function AdminGaleria() {
             </Grid>
           </Grid>
         </Grid>
-        <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <Dialog 
+          open={dialogOpen} 
+          onClose={() => setDialogOpen(false)}
+          PaperProps={{
+            sx: { borderRadius: 2 }
+          }}
+        >
           <DialogTitle>¿Eliminar foto?</DialogTitle>
           <DialogContent>
             ¿Estás seguro de que quieres eliminar esta foto?
